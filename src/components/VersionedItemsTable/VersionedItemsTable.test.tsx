@@ -95,4 +95,32 @@ describe('VersionedItemsTable', () => {
     expect(screen.getByText('No items to show.')).toBeInTheDocument()
     expect(screen.getAllByRole('row')).toHaveLength(2)
   })
+
+  it('searches by item id and by name', async () => {
+    const user = renderTable()
+    const search = screen.getByRole('textbox', { name: 'Search by item id or name' })
+
+    await user.type(search, 'PRM-003')
+    expect(screen.getByText('prm-003')).toBeInTheDocument()
+    expect(screen.queryByText('prm-001')).not.toBeInTheDocument()
+    expect(screen.getByText('1 of 8 items')).toBeInTheDocument()
+    expect(screen.getByText('2 of 21 versions')).toBeInTheDocument()
+
+    await user.clear(search)
+    await user.type(search, 'invoice')
+    expect(screen.getByText('prm-002')).toBeInTheDocument()
+    expect(screen.queryByText('prm-003')).not.toBeInTheDocument()
+  })
+
+  it('reports when a search matches nothing and clears back to the full list', async () => {
+    const user = renderTable()
+    const search = screen.getByRole('textbox', { name: 'Search by item id or name' })
+
+    await user.type(search, 'zzz')
+    expect(screen.getByText('No items match "zzz".')).toBeInTheDocument()
+
+    await user.click(screen.getByRole('button', { name: 'Clear search' }))
+    expect(search).toHaveValue('')
+    expect(screen.getAllByRole('row')).toHaveLength(9)
+  })
 })

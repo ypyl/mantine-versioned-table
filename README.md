@@ -9,6 +9,8 @@ between two views:
   Expand the row to see every version, newest first.
 - **Flat:** every version as its own row.
 
+A search input in the toolbar narrows the table by item id or name.
+
 TanStack Table owns grouping, aggregation and row expansion. Mantine 9 renders
 the table, badges, switch and buttons. There is no third-party Mantine table
 wrapper in between. Above 200 rendered rows the body is virtualised, so the
@@ -97,6 +99,15 @@ virtualisation:
 />
 ```
 
+## Search
+
+The toolbar input matches rows whose `itemId` or `name` contains the query,
+case-insensitively; an empty or whitespace-only query keeps everything. The
+filter runs before sorting and grouping (`filterForSearch` in
+`src/domain/versions.ts`), so a hit on an older version keeps its whole item in
+the grouped view and `Expand all` only opens the matched groups. While a query
+is active the counters read `N of M items` and `N of M versions`.
+
 ## Large datasets
 
 The version switch in the header loads 21, 500 or 2 000 versions (2 000 is the
@@ -130,7 +141,7 @@ src/
     table-features.ts            TanStack features and latest-version aggregation
     VersionedItemsTable.test.tsx component tests
   data/prompt-versions.ts        demo data and the large-dataset generator
-  domain/versions.ts             sorting, grouping and latest-version helpers
+  domain/versions.ts             sorting, filtering, grouping and latest-version helpers
   domain/versions.test.ts        helper tests
   test/setup.ts                  jsdom polyfills and Testing Library cleanup
 ```

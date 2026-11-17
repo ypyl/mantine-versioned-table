@@ -25,6 +25,26 @@ export function countItems(versions: readonly PromptVersion[]): number {
   return new Set(versions.map((item) => item.itemId)).size
 }
 
+/**
+ * Rows whose item id or name contains the query, case-insensitively. An empty
+ * or whitespace-only query keeps every row.
+ */
+export function filterForSearch(
+  versions: readonly PromptVersion[],
+  query: string,
+): PromptVersion[] {
+  const needle = query.trim().toLowerCase()
+
+  if (needle === '') {
+    return [...versions]
+  }
+
+  return versions.filter(
+    (item) =>
+      item.itemId.toLowerCase().includes(needle) || item.name.toLowerCase().includes(needle),
+  )
+}
+
 /** Versions per item id, newest first. */
 export function groupByItem(
   versions: readonly PromptVersion[],

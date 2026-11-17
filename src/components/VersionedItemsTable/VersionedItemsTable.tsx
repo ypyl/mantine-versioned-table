@@ -1,9 +1,15 @@
-import { Button, Group, Switch, Table, Text } from '@mantine/core'
+import { Button, CloseButton, Group, Switch, Table, Text, TextInput } from '@mantine/core'
+import { IconSearch } from '@tabler/icons-react'
 import { flexRender, useTable, type ExpandedState, type GroupingState } from '@tanstack/react-table'
 import { useVirtualizer } from '@tanstack/react-virtual'
 import { useMemo, useRef, useState, type ChangeEvent } from 'react'
 import type { PromptVersion } from '../../data/prompt-versions'
-import { countItems, latestVersionNumbers, sortForDisplay } from '../../domain/versions'
+import {
+  countItems,
+  filterForSearch,
+  latestVersionNumbers,
+  sortForDisplay,
+} from '../../domain/versions'
 import { alignFor, columnWidths, createColumns } from './columns'
 import { versionedTableFeatures } from './table-features'
 import classes from './VersionedItemsTable.module.css'
@@ -47,10 +53,14 @@ export function VersionedItemsTable({
 }: VersionedItemsTableProps) {
   const [grouped, setGrouped] = useState(initialGrouped)
   const [expanded, setExpanded] = useState<ExpandedState>({})
+  const [query, setQuery] = useState('')
 
-  const rows = useMemo(() => sortForDisplay(data), [data])
+  const matched = useMemo(() => filterForSearch(data, query), [data, query])
+  const rows = useMemo(() => sortForDisplay(matched), [matched])
   const latestByItem = useMemo(() => latestVersionNumbers(data), [data])
-  const itemCount = useMemo(() => countItems(data), [data])
+  const itemCount = useMemo(() => countItems(matched), [matched])
+  const totalItems = useMemo(() => countItems(data), [data])
+  const searching = query.trim() !== ''
 
   const columns = useMemo(() => createColumns(latestByItem, grouped), [latestByItem, grouped])
   const grouping = useMemo<GroupingState>(() => (grouped ? ['itemId'] : []), [grouped])
@@ -91,6 +101,20 @@ export function VersionedItemsTable({
     : 0
   const leafColumnCount = table.getAllLeafColumns().length
 
+  const handleSearchChange = (event: ChangeEvent<HTMLInputElement>) => {
+    setQuery(event.currentTarget.value)
+    if (scrollRef.current) {
+      scrollRef.current.scrollTop = 0
+    }
+  }
+
+  const handleSearchClear = () => {
+    setQuery('')
+    if (scrollRef.current) {
+      scrollRef.current.scrollTop = 0
+    }
+  }
+
   const handleGroupedChange = (event: ChangeEvent<HTMLInputElement>) => {
     const nextGrouped = event.currentTarget.checked
     setGrouped(nextGrouped)
@@ -120,16 +144,16 @@ export function VersionedItemsTable({
 
   return (
     <>
-      <Group justify="space-between" align="center" gap="sm" mb="sm">
+      <Group justify="space-between" align="center" gap="sm" mb="sm" wrap="wrap">
         <Group gap={6}>
           <Text size="sm" fw={600}>
-            {itemCount} items
+            {searching ? `${itemCount} of ${totalItems}` : itemCount} items
           </Text>
           <Text size="sm" c="dimmed">
             ·
           </Text>
           <Text size="sm" c="dimmed">
-            {data.length} versions
+            {searching ? `${matched.length} of ${data.length}` : data.length} versions
           </Text>
           {grouped ? (
             <>
@@ -143,7 +167,27 @@ export function VersionedItemsTable({
           ) : null}
         </Group>
 
-        <Group gap="sm">
+        <Group gap="sm" wrap="nowrap">
+          <TextInput
+            size="xs"
+            w={220}
+            value={query}
+            onChange={handleSearchChange}
+            placeholder="Search item or name"
+            aria-label="Search by item id or name"
+            leftSection={<IconSearch size={14} />}
+            leftSectionPointerEvents="none"
+            rightSection={
+              searching ? (
+                <CloseButton
+                  size="sm"
+                  aria-label="Clear search"
+                  onClick={handleSearchClear}
+                />
+              ) : null
+            }
+            rightSectionPointerEvents="all"
+          />
           {grouped ? (
             <Button
               variant="default"
@@ -200,7 +244,7 @@ export function VersionedItemsTable({
               <Table.Tr>
                 <Table.Td colSpan={leafColumnCount}>
                   <Text size="sm" c="dimmed" ta="center" py="md">
-                    No items to show.
+                    {searching ? `No items match "${query.trim()}".` : 'No items to show.'}
                   </Text>
                 </Table.Td>
               </Table.Tr>

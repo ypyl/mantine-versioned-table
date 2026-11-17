@@ -108,6 +108,11 @@ export default function App() {
                 renders every version as a flat row.
               </List.Item>
               <List.Item>
+                The search box matches item ids and names before grouping, so a hit on an
+                old version keeps the whole item. Counts switch to "N of M" while it is
+                active.
+              </List.Item>
+              <List.Item>
                 Past 200 rendered rows the body is virtualised: the rows live in a
                 fixed-height scroll container and TanStack Virtual keeps only the visible
                 window in the DOM, so 2 000 versions scroll the same as 21.

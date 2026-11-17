@@ -1,6 +1,12 @@
 import { describe, expect, it } from 'vitest'
 import { promptVersions } from '../data/prompt-versions'
-import { countItems, groupByItem, latestVersionNumbers, sortForDisplay } from './versions'
+import {
+  countItems,
+  filterForSearch,
+  groupByItem,
+  latestVersionNumbers,
+  sortForDisplay,
+} from './versions'
 
 describe('version helpers', () => {
   it('has one unique row per item id and version', () => {
@@ -36,5 +42,28 @@ describe('version helpers', () => {
     expect(groups.size).toBe(8)
     expect(groups.get('prm-007')?.map((item) => item.version)).toEqual([4, 3, 2, 1])
     expect([...groups.values()].flat()).toHaveLength(promptVersions.length)
+  })
+
+  it('filters by item id, case-insensitively', () => {
+    const matched = filterForSearch(promptVersions, 'PRM-003')
+
+    expect(new Set(matched.map((item) => item.itemId))).toEqual(new Set(['prm-003']))
+    expect(matched).toHaveLength(2)
+  })
+
+  it('filters by name, keeping every version of a match', () => {
+    const matched = filterForSearch(promptVersions, 'invoice')
+
+    expect(new Set(matched.map((item) => item.itemId))).toEqual(new Set(['prm-002']))
+    expect(countItems(matched)).toBe(1)
+  })
+
+  it('keeps every row for a blank query', () => {
+    expect(filterForSearch(promptVersions, '')).toHaveLength(promptVersions.length)
+    expect(filterForSearch(promptVersions, '   ')).toHaveLength(promptVersions.length)
+  })
+
+  it('returns nothing when no item matches', () => {
+    expect(filterForSearch(promptVersions, 'zzz')).toEqual([])
   })
 })
