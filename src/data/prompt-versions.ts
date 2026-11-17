@@ -43,3 +43,32 @@ export const promptVersions: PromptVersion[] = [
   { itemId: 'prm-008', name: 'Ticket classifier', version: 1, status: 'published', updatedAt: '2026-04-16', tokens: 280 },
   { itemId: 'prm-008', name: 'Ticket classifier', version: 2, status: 'published', updatedAt: '2026-09-02', tokens: 310 },
 ]
+
+const generatedStatuses: PromptStatus[] = ['published', 'draft', 'archived', 'published']
+
+/**
+ * Deterministic dataset of the same shape as `promptVersions`, used by the demo
+ * size selector to show what the table does with a few thousand rows.
+ * Four versions per item, so `versionCount` rows become `versionCount / 4` items.
+ */
+export function createPromptVersions(versionCount: number): PromptVersion[] {
+  const versions: PromptVersion[] = []
+
+  for (let index = 0; index < versionCount; index += 1) {
+    const itemNumber = Math.floor(index / 4) + 1
+    const version = (index % 4) + 1
+    const month = String(1 + ((index * 5) % 12)).padStart(2, '0')
+    const day = String(1 + ((index * 7) % 28)).padStart(2, '0')
+
+    versions.push({
+      itemId: `prm-${String(itemNumber).padStart(3, '0')}`,
+      name: `Prompt template ${itemNumber}`,
+      version,
+      status: generatedStatuses[version % generatedStatuses.length],
+      updatedAt: `2026-${month}-${day}`,
+      tokens: 320 + ((index * 37) % 640),
+    })
+  }
+
+  return versions
+}
