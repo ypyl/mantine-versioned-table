@@ -26,8 +26,8 @@ export function countItems(versions: readonly PromptVersion[]): number {
 }
 
 /**
- * Rows whose item id or name contains the query, case-insensitively. An empty
- * or whitespace-only query keeps every row.
+ * Rows whose item id, name or tags contain the query, case-insensitively. An
+ * empty or whitespace-only query keeps every row.
  */
 export function filterForSearch(
   versions: readonly PromptVersion[],
@@ -41,7 +41,9 @@ export function filterForSearch(
 
   return versions.filter(
     (item) =>
-      item.itemId.toLowerCase().includes(needle) || item.name.toLowerCase().includes(needle),
+      item.itemId.toLowerCase().includes(needle) ||
+      item.name.toLowerCase().includes(needle) ||
+      item.tags.some((tag) => tag.toLowerCase().includes(needle)),
   )
 }
 

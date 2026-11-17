@@ -38,7 +38,7 @@ export default function App() {
   )
 
   return (
-    <Container size="lg" py={{ base: 'lg', sm: 'xl' }}>
+    <Container size="xl" py={{ base: 'lg', sm: 'xl' }}>
       <Stack gap="lg">
         <Group justify="space-between" align="flex-start" gap="md">
           <Stack gap={4}>

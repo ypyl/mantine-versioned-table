@@ -173,8 +173,8 @@ export function VersionedItemsTable({
             w={220}
             value={query}
             onChange={handleSearchChange}
-            placeholder="Search item or name"
-            aria-label="Search by item id or name"
+            placeholder="Search id, name or tag"
+            aria-label="Search by item id, name or tag"
             leftSection={<IconSearch size={14} />}
             leftSectionPointerEvents="none"
             rightSection={
@@ -209,7 +209,7 @@ export function VersionedItemsTable({
       <Table.ScrollContainer
         ref={scrollRef}
         type="native"
-        minWidth={880}
+        minWidth={1180}
         maxHeight={virtualize ? VIRTUAL_VIEWPORT_HEIGHT : undefined}
       >
         <Table

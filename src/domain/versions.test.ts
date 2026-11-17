@@ -58,6 +58,14 @@ describe('version helpers', () => {
     expect(countItems(matched)).toBe(1)
   })
 
+  it('filters by tag', () => {
+    const matched = filterForSearch(promptVersions, 'routing')
+
+    expect(new Set(matched.map((item) => item.itemId))).toEqual(
+      new Set(['prm-001', 'prm-008']),
+    )
+  })
+
   it('keeps every row for a blank query', () => {
     expect(filterForSearch(promptVersions, '')).toHaveLength(promptVersions.length)
     expect(filterForSearch(promptVersions, '   ')).toHaveLength(promptVersions.length)

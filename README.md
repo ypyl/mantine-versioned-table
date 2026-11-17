@@ -9,7 +9,8 @@ between two views:
   Expand the row to see every version, newest first.
 - **Flat:** every version as its own row.
 
-A search input in the toolbar narrows the table by item id or name.
+A search input in the toolbar narrows the table by item id, name or tag. Tags
+are their own column, rendered as violet badges from the item's latest version.
 
 TanStack Table owns grouping, aggregation and row expansion. Mantine 9 renders
 the table, badges, switch and buttons. There is no third-party Mantine table
@@ -56,7 +57,9 @@ const versionedTableFeatures = tableFeatures({
 ```
 
 `aggregationFn_latestVersion` takes the row with the highest `version` and
-returns that row's value for the column. Every visible data column uses it:
+returns that row's value for the column. Every visible data column uses it,
+including `tags`, which is why a group row shows the newest version's tags and
+not a merge of every version's:
 
 ```ts
 helper.accessor('name', {
@@ -80,7 +83,7 @@ The component takes `data: PromptVersion[]`, where `PromptVersion` is defined in
 `src/data/prompt-versions.ts`. To use a different record:
 
 1. Replace `PromptVersion` with your type. Keep an item identifier and a numeric
-   version field.
+   version field. `tags: string[]` is optional if you drop the tags column.
 2. Update the accessors and cells in
    `src/components/VersionedItemsTable/columns.tsx`.
 3. Keep `aggregationFn: 'latestVersion'` on every column that should show the
@@ -101,8 +104,9 @@ virtualisation:
 
 ## Search
 
-The toolbar input matches rows whose `itemId` or `name` contains the query,
-case-insensitively; an empty or whitespace-only query keeps everything. The
+The toolbar input matches rows whose `itemId`, `name` or any of its `tags`
+contains the query, case-insensitively; an empty or whitespace-only query keeps
+everything. The
 filter runs before sorting and grouping (`filterForSearch` in
 `src/domain/versions.ts`), so a hit on an older version keeps its whole item in
 the grouped view and `Expand all` only opens the matched groups. While a query
@@ -140,7 +144,7 @@ src/
     columns.tsx                  column definitions and cell rendering
     table-features.ts            TanStack features and latest-version aggregation
     VersionedItemsTable.test.tsx component tests
-  data/prompt-versions.ts        demo data and the large-dataset generator
+  data/prompt-versions.ts        demo data (with tags) and the large-dataset generator
   domain/versions.ts             sorting, filtering, grouping and latest-version helpers
   domain/versions.test.ts        helper tests
   test/setup.ts                  jsdom polyfills and Testing Library cleanup

@@ -89,6 +89,19 @@ describe('VersionedItemsTable', () => {
     expect(screen.getAllByRole('row')).toHaveLength(9)
   })
 
+  it('renders the latest version tags on a group row', async () => {
+    const user = renderTable()
+    const row = screen.getByText('prm-001').closest('tr')!
+
+    expect(within(row).getByText('support')).toBeInTheDocument()
+    expect(within(row).getByText('routing')).toBeInTheDocument()
+
+    await user.click(screen.getByRole('button', { name: 'Expand prm-001' }))
+    // The group row, v4 and v3 carry the routing tag, v1 and v2 do not.
+    // prm-008 v2 also has it, so four badges in total.
+    expect(screen.getAllByText('routing')).toHaveLength(4)
+  })
+
   it('shows an empty state when there is no data', () => {
     renderTable([])
 
@@ -98,7 +111,7 @@ describe('VersionedItemsTable', () => {
 
   it('searches by item id and by name', async () => {
     const user = renderTable()
-    const search = screen.getByRole('textbox', { name: 'Search by item id or name' })
+    const search = screen.getByRole('textbox', { name: 'Search by item id, name or tag' })
 
     await user.type(search, 'PRM-003')
     expect(screen.getByText('prm-003')).toBeInTheDocument()
@@ -114,7 +127,7 @@ describe('VersionedItemsTable', () => {
 
   it('reports when a search matches nothing and clears back to the full list', async () => {
     const user = renderTable()
-    const search = screen.getByRole('textbox', { name: 'Search by item id or name' })
+    const search = screen.getByRole('textbox', { name: 'Search by item id, name or tag' })
 
     await user.type(search, 'zzz')
     expect(screen.getByText('No items match "zzz".')).toBeInTheDocument()

@@ -19,12 +19,14 @@ const dateFormatter = new Intl.DateTimeFormat('en-GB', {
 })
 
 export const columnWidths: Record<string, number> = {
-  itemId: 200,
-  version: 140,
-  status: 120,
-  updatedAt: 140,
-  tokens: 100,
-  versionCount: 110,
+  itemId: 180,
+  name: 220,
+  tags: 220,
+  version: 128,
+  status: 116,
+  updatedAt: 126,
+  tokens: 92,
+  versionCount: 100,
 }
 
 export function createColumns(latestByItem: ReadonlyMap<string, number>, grouped: boolean) {
@@ -86,6 +88,20 @@ export function createColumns(latestByItem: ReadonlyMap<string, number>, grouped
         <Text size="sm" fw={row.getIsGrouped() ? 600 : 400}>
           {getValue()}
         </Text>
+      ),
+    }),
+
+    helper.accessor('tags', {
+      header: 'Tags',
+      aggregationFn: 'latestVersion',
+      cell: ({ getValue }) => (
+        <Group gap={4} wrap="wrap">
+          {getValue().map((tag) => (
+            <Badge key={tag} variant="light" color="violet" radius="sm" size="sm">
+              {tag}
+            </Badge>
+          ))}
+        </Group>
       ),
     }),
 
